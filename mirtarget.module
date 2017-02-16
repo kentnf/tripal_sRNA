@@ -1,0 +1,155 @@
+<?php
+
+/**
+ * @file
+ * The main file for the tripal go module.
+ */
+
+// miRNA/mRNA Node functionality
+require_once 'includes/mirtarget.node.inc';
+
+// Functions specific to themeing (ie: preprocess)
+require_once 'theme/mirtarget.theme.inc';
+
+// Application Programmers Interface
+require_once 'api/mirtarget.api.inc';
+
+// Administration for furture
+require_once 'includes/mirtarget.admin.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function mirtarget_menu() {
+  // miRNA target prediction form
+  $items['mirtarget'] = array(
+    'title' => 'miRNA target prediction',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mirtarget_pred_form', 1, 2),
+    'access arguments' => array('access content'),
+    'file' => 'includes/mirtarget_pred_form.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  // mirtarget dataset Node 
+  // -- the node just fasta sequence used for target prediction
+  // -- accpet both miRNA and mRNA sequence with fasta format
+  $items['node__mirtarget'] = array(
+    'template' => 'node--mirtarget',
+    'render element' => 'node',
+    'base hook' => 'node',
+    'path' => 'thememir',
+  );
+
+  // miRNA target prediction results page
+  $items['mirtarget/report/%'] = array(
+    'title' => 'miRNA target prediction results',
+    'page callback' => 'show_mirtarget_output',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  // pwy tool admin for furture
+  //$items['admin/tripal/extension/tripal_miRNA'] = array(
+  //  'title' => 'Tripal miRNA target prediction User Interface',
+  //  'description' => 'Provides an interface for miRNA target prediction.',
+  //  'page callback' => 'drupal_get_form',
+  //  'page arguments' => array('go_tool_admin_form'),
+  //  'access arguments' => array('administer tripal'),
+  //  'type' => MENU_NORMAL_ITEM,
+  //);
+
+  // help
+  $items['admin/tripal/extension/tripal_miRNA/help'] = array(
+    'title' => 'Help',
+    'page callback' => 'theme',
+    'page arguments' => array('mirtarget_help'),
+    'access arguments' => array('administer tripal'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function mirtarget_theme() {
+
+  $items = array();
+  $path = drupal_get_path('module', 'mirtarget');
+
+  // explain the detail
+  // this hook create a array of theme through array item
+  // the key in array is like show_goenrich_report
+  // the value tell drupal where to find template page 
+  //   template: template name, and file must has suffix .tpl.php 
+  //   path: where to find template file 
+  // use theme('key') to call the them
+
+  // Displays the pwy enrich results for each job
+  $items['show_mirtarget_report'] = array(
+    'template' => 'mirtarget_report',
+    'path' => "$path/theme",
+  );
+
+  $items['mirtarget_report_pending'] = array(
+    'template' => 'mirtarget_report_pending',
+    'path' => "$path/theme",
+  );
+
+  // Module Help
+  $items['mirtarget_help'] = array(
+    'template' => 'mirtargt_help',
+    'path' => "$path/theme",
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_help().
+ */
+function mirtarget_help($path, $arg) {
+  if ($path == 'admin/help#mirtargt') {
+    return theme('mirtarget_help');
+  }
+}
+
+/**
+ * Facilitate presenting the result of the go enrichment 
+ *
+ * @param $job_id
+ *  The tripal job_id of the go enrich job previously submitted
+ *
+ * @return $result
+ *  Return HTML output of the go enrich results to be displayed to the user
+ *
+ */
+
+function show_mirtarget_output($job_string) {
+
+  //decode the job_id
+  $job_id = pwy_tool_reveal_secret($job_string);
+  $job = tripal_get_job($job_id);
+
+  // 1) Job is in the Queue
+  if ($job->start_time === NULL AND $job->end_time == NULL) {
+    return theme('mirtarget_report_pending', array('status_code' => 0, 'status' => 'Pending'));
+  }
+  // 2) Job has been Cancelled
+  elseif ($job->status == 'Cancelled') {
+    return theme('mirtarget_report_pending', array('status_code' => 999, 'status' => 'Cancelled'));
+  }
+  // 3) Job is Complete
+  elseif ($job->end_time !== NULL) {
+    return theme('show_mirtarget_report', array('job_id' => $job_id));
+  }
+  // 4) Job is in Progress
+  else {
+    return theme('mirtarget_report_pending', array('status_code' => 1, 'status' => 'Running'));
+  }
+
+  return '';
+}
+

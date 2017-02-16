@@ -1,0 +1,7 @@
+name = miRNA Target Pred
+description = prediction of miRNA target
+configure = admin/tripal/extension/tripal_pathway/miRTarget
+project = tripal_miRNA
+package = Tripal Extensions
+core = 7.x
+

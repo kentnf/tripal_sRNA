@@ -1,0 +1,78 @@
+<?php
+
+/**
+ * @file
+ * Contains hooks to handle installation of this module.
+ *
+ */
+
+/**
+ * Implements hook_install().
+ * create folder tripal_pathway under: default/files/tripal/
+ */
+function mirtarget_install() {
+   tripal_create_files_dir('tripal_mirtarget');
+}
+
+/**
+ * Implements hook_schema().
+ * Create the pwy table for storing pwy File related to pwy nodes.
+ *
+ */
+function mirtarget_schema() {
+
+  // table for store pwy file name and path
+  $schema['mipredseq'] = array(
+    'description' => t('The table for pwy node'),
+    'fields' => array(
+      'nid' => array(
+        'description' => t('The primary identifier for a node.'),
+        'type' => 'serial',
+        'unsigned' => true,
+        'not null' => true,
+      ),
+      'name' => array(
+        'description' => t('The human-readable name of miRNA/mRNA seq.'),
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => true,
+      ),
+      'path' => array(
+        'description' => t('The full path of the sequence file.'),
+        'type' => 'varchar',
+        'length' => 1023,
+        'not null' => true,
+      ),
+      'type' => array(
+        'description' => t('The type of sequence (miRNA or mRNA).'),
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => true,
+      ),
+      'dblink' => array(
+        'description' => t('base link of IDs in sequence file.'),
+        'type' => 'varchar',
+        'length' => 1023,
+        'not null' => true,
+      ),
+      'example' => array(
+        'description' => t('example sequences.'),
+        'type' => 'text',
+        'not null' => true,
+      ),
+    ),
+    
+    'indexes' => array(
+      'name' => array('name'),
+    ),
+    
+    'primary key' => array('nid'),
+      
+    'unique keys' => array(
+      'nid' => array('nid'),
+    ),
+  );
+  
+  return $schema;
+}
+
