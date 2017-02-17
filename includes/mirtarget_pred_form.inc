@@ -247,9 +247,6 @@ function mirtarget_pred_form_submit($form, &$form_state) {
     );
   }
 
-  dpm($form);
-  dpm($form_state);
-
   // SUBMIT JOB TO TRIPAL
   //-------------------------
   if (!$error) {
@@ -276,15 +273,11 @@ function mirtarget_pred_form_submit($form, &$form_state) {
       $user->uid
     );
 
-	dpm($job_args, 'jobargs');
-
     // Encode the job_id
     $job_encode_id = mirtarget_make_secret($job_id);
 
-	dpm($job_encode_id, 'job_id');
-
     // Redirect to the miRNA target prediction result page
-    // drupal_goto("mirtarget/report/$job_encode_id");
+    drupal_goto("mirtarget/report/$job_encode_id");
   }
 }
 
