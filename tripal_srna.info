@@ -1,0 +1,16 @@
+name = Tripal sRNA
+description = A module to load sRNA, miRNA, and prediction of miRNA target
+configure = admin/tripal/extension/tripal_srna
+project = tripal_srna
+package = Tripal Extensions
+core = 7.x
+version = 7.x-0.1-dev
+
+dependencies[] = tripal_core
+dependencies[] = tripal_views
+dependencies[] = tripal_db
+dependencies[] = tripal_cv
+dependencies[] = tripal_analysis
+dependencies[] = tripal_feature
+dependencies[] = tripal_organism
+dependencies[] = tripal_sra

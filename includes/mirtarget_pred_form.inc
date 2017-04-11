@@ -317,3 +317,40 @@ function ajax_mitarget_pred_database_callback($form, $form_state) {
   return $form['SELECT_DATABASE'];
 }
 
+
+/**
+ * Facilitate presenting the result of the go enrichment 
+ *
+ * @param $job_id
+ *  The tripal job_id of the go enrich job previously submitted
+ *
+ * @return $result
+ *  Return HTML output of the go enrich results to be displayed to the user
+ *
+ */
+function show_mirtarget_output($job_string) {
+
+  //decode the job_id
+  $job_id = tripal_srna_reveal_secret($job_string);
+  $job = tripal_get_job($job_id);
+
+  // 1) Job is in the Queue
+  if ($job->start_time === NULL AND $job->end_time == NULL) {
+    return theme('mirtarget_report_pending', array('status_code' => 0, 'status' => 'Pending'));
+  }
+  // 2) Job has been Cancelled
+  elseif ($job->status == 'Cancelled') {
+    return theme('mirtarget_report_pending', array('status_code' => 999, 'status' => 'Cancelled'));
+  }
+  // 3) Job is Complete
+  elseif ($job->end_time !== NULL) {
+    return theme('show_mirtarget_report', array('job_id' => $job_id));
+  }
+  // 4) Job is in Progress
+  else {
+    return theme('mirtarget_report_pending', array('status_code' => 1, 'status' => 'Running'));
+  }
+
+  return '';
+}
+

@@ -1,0 +1,295 @@
+<?php
+
+/**
+ * @file
+ * The main file for the tripal srna module.
+ */
+
+// Application Programmers Interface
+require_once 'api/tripal_srna.api.inc';
+
+// Administration for furture
+require_once 'includes/tripal_srna.admin.inc';
+
+// load sRNA to database public schema
+require_once 'includes/tripal_srna_sample_loader.inc';
+require_once 'includes/tripal_srna_seq_loader.inc';
+require_once 'includes/tripal_srna_exp_loader.inc';
+
+// search page of sRNA
+require_once 'includes/tripal_srna_search.inc';
+
+// identify highly abundant sRNAs 
+require_once 'includes/tripal_srna_abundant.inc';
+
+// load miRNA to database public and chado chema
+require_once 'includes/tripal_mirna_loader.inc';
+
+// search page of miRNA
+require_once 'includes/tripal_mirna_search.inc';
+
+// miRNA/mRNA Node functionality
+require_once 'includes/mirtarget.node.inc';
+
+// Functions specific to themeing (ie: preprocess)
+require_once 'theme/tripal_srna.theme.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function tripal_srna_menu() {
+
+  // ==== tripal srna admin ====
+  $items['admin/tripal/extension/tripal_srna'] = array(
+    'title' => 'sRNA and miRNA',
+    'description' => 'Administrative pages for the Tripal sRNA module.',
+    'access arguments' => array('administer'),
+  );
+
+  // load sRNA (sample)
+  $items['admin/tripal/extension/tripal_srna/srna_sample_load'] = array(
+    'title' => 'Load sRNA sample',
+    'description' => 'Load sRNA sample information into public database.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('tripal_srna_sample_loader_form'),
+    'access arguments' => array('administer'),
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => 1,
+  );
+
+  // load sRNA (sequence)
+  $items['admin/tripal/extension/tripal_srna/srna_seq_load'] = array(
+    'title' => 'Load sRNA sequences',
+    'description' => 'Load sRNA sequences into public database.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('tripal_srna_seq_loader_form'),
+    'access arguments' => array('administer'),
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => 2,
+  );
+
+  // load sRNA (expression)
+  $items['admin/tripal/extension/tripal_srna/srna_exp_load'] = array(
+    'title' => 'Load sRNA expression',
+    'description' => 'Load sRNA expression into public database.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('tripal_srna_exp_loader_form'),
+    'access arguments' => array('administer'),
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => 3,
+  );
+
+  // search sRNA
+  $items['srna/search'] = array(
+    'title' => 'search small RNAs',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('tripal_srna_search_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  // dispaly sRNA
+  $items['srna/display/%'] = array(
+    'title' => 'sRNA sequence and expression',
+    'page callback' => 'tripal_srna_search_display',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  // highly abundant sRNAs
+  $items['srna/abundant/search'] = array(
+    'title' => 'Identify highly abundant sRNAs',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('tripal_srna_abundant_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );  
+
+  $items['srna/abundant/display'] = array(
+    'title' => 'Top highly abundant sRNAs',
+    'page callback' => 'tripal_srna_abundant_display',
+    'page arguments' => array(''),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  // load miRNA (feature)
+  $items['admin/tripal/extension/tripal_srna/mirna_load'] = array(
+    'title' => 'Load miRNA feature',
+    'description' => 'Load miRNA feature into chado database.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('tripal_mirna_loader_form'),
+    'access arguments' => array('administer'),
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => 5,
+  );
+
+  // search miRNA (feature)
+  $items['mirna/search'] = array(
+    'title' => 'Search putative miRNAs',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('tripal_mirna_search_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  // display single miRNA (feature)
+  $items['mirna/display/%'] = array(
+    'title' => 'Dispaly miRNA feature',
+    'page callback' => 'tripal_mirna_search_display',
+    'page arguments' => array(2),
+    'access arguments' => array('access countent'),
+    'type' => MENU_CALLBACK,
+  );  
+
+  // display miRNA list
+  $items['mirna/list'] = array(
+    'title' => 'list of putative miRNA',
+    'page callback' => 'tripal_mirna_search_list',
+    'access arguments' => array('access countent'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  // display miRNA target
+  $items['mirna/target/%'] = array(
+    'title' => 'target of putative miRNA',
+    'page callback' => 'tripal_mirna_search_target',
+    'page arguments' => array(2),
+    'access arguments' => array('access countent'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  // display miRNA star 
+  $items['mirna/star/%/%'] = array(
+    'title' => 'miRNA*',
+    'page callback' => 'tripal_mirna_search_star',
+    'page arguments' => array(2, 3),
+    'access arguments' => array('access countent'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  // display miRNA structure
+  $items['mirna/structure/%'] = array(
+    'title' => 'Hairpin structure of pre-miRNA',
+    'page callback' => 'tripal_mirna_search_structure',
+    'page arguments' => array(2),
+    'access arguments' => array('access countent'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  // ==== Tools ====
+  // highly abundant sRNAs
+  // --- will do it ASAP ---
+
+  // miRNA target prediction form
+  $items['mirtarget'] = array(
+    'title' => 'miRNA target prediction',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mirtarget_pred_form'),
+    'access arguments' => array('access content'),
+    'file' => 'includes/mirtarget_pred_form.inc',
+  );
+
+  // mirtarget dataset Node 
+  // -- the node just fasta sequence used for target prediction
+  // -- accpet both miRNA and mRNA sequence with fasta format
+  $items['node__mirtarget'] = array(
+    'template' => 'node--mirtarget',
+    'render element' => 'node',
+    'base hook' => 'node',
+    'path' => 'thememir',
+  );
+
+  // miRNA target prediction results page
+  $items['mirtarget/report/%'] = array(
+    'title' => 'miRNA target prediction results',
+    'page callback' => 'show_mirtarget_output',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  // help
+  $items['admin/tripal/extension/tripal_srna/help'] = array(
+    'title' => 'Help',
+    'page callback' => 'theme',
+    'page arguments' => array('tripal_srna_help'),
+    'access arguments' => array('administer tripal'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function tripal_srna_theme() {
+
+  $items = array();
+  $path = drupal_get_path('module', 'tripal_srna');
+
+  $items['srna_display'] = array(
+    'template' => 'srna_display',
+    'path' => "$path/theme",
+  );
+
+  $items['srna_abundant_display'] = array(
+    'template' => 'srna_abundant_display',
+    'path' => "$path/theme",
+  );
+
+  $items['mirna_display'] = array(
+    'template' => 'mirna_display',
+    'path' => "$path/theme",
+  );
+
+  $items['mirna_list'] = array(
+    'template' => 'mirna_list',
+    'path' => "$path/theme",
+  );
+
+  $items['mirna_target'] = array(
+    'template' => 'mirna_target',
+    'path' => "$path/theme",
+  );
+
+  $items['mirna_star'] = array(
+    'template' => 'mirna_star',
+    'path' => "$path/theme",
+  );
+
+  $items['mirna_structure'] = array(
+    'template' => 'mirna_structure',
+    'path' => "$path/theme",
+  );
+
+  $items['show_mirtarget_report'] = array(
+    'template' => 'mirtarget_report',
+    'path' => "$path/theme",
+  );
+
+  $items['mirtarget_report_pending'] = array(
+    'template' => 'mirtarget_report_pending',
+    'path' => "$path/theme",
+  );
+
+  // Module Help
+  $items['tripal_srna_help'] = array(
+    'template' => 'tripal_srna_help',
+    'path' => "$path/theme",
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_help().
+ */
+function tripal_srna_help($path, $arg) {
+  if ($path == 'admin/help#tripal_srna') {
+    return theme('tripal_srna_help');
+  }
+}
+

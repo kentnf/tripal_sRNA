@@ -5,7 +5,6 @@
  * This file contains functions specifically related to theme-ing the BLAST module
  */
 
-
 /**
  * Preprocess function for the show_mirtarget_report
  *
@@ -13,9 +12,9 @@
  *   The variables currently available to the template.
  *
  */
-function mirtarget_preprocess_show_mirtarget_report(&$vars) {
+function tripal_srna_preprocess_show_mirtarget_report(&$vars) {
 
-  $path = drupal_get_path('module', 'mirtarget');
+  $path = drupal_get_path('module', 'tripal_srna');
   drupal_add_css($path . '/theme/css/report.css');
 
   $tripal_job = tripal_get_job($vars['job_id']);
@@ -50,11 +49,10 @@ function mirtarget_preprocess_show_mirtarget_report(&$vars) {
  *
  * task: get understand what function of these code? 
  */
-function mirtarget_theme_registry_alter(&$theme_registry) {
+function tripal_srna_theme_registry_alter(&$theme_registry) {
 
-  /**
   $theme_registry_copy = $theme_registry;
-  $module_path = drupal_get_path('module', 'go_tool') . '/theme';
+  $module_path = drupal_get_path('module', 'tripal_srna') . '/theme';
   _theme_process_registry($theme_registry_copy, 'phptemplate', 'theme_engine', 'my_custom_theme', $module_path);
   $theme_registry += array_diff_key($theme_registry_copy, $theme_registry);
   // A list of templates the module will provide templates for
@@ -75,7 +73,6 @@ function mirtarget_theme_registry_alter(&$theme_registry) {
       }
     }
   }
-  */
 }
 
 /**
@@ -87,11 +84,9 @@ function mirtarget_theme_registry_alter(&$theme_registry) {
  * @return
  *   A short string representing the job_id.
  */
-function mirtarget_make_secret($job_id) {
-
-  $mapping = mirtarget_secret_mapping();
+function tripal_srna_make_secret($job_id) {
+  $mapping = tripal_srna_secret_mapping();
   $secret = str_replace(array_keys($mapping), $mapping, $job_id);
-
   return $secret;
 }
 
@@ -104,9 +99,9 @@ function mirtarget_make_secret($job_id) {
  * @return
  *    The revealed tripal job_id.
  */
-function mirtarget_reveal_secret($secret) {
+function tripal_srna_reveal_secret($secret) {
 
-  $mapping = mirtarget_secret_mapping(TRUE);
+  $mapping = tripal_srna_secret_mapping(TRUE);
   $job_id = str_replace(array_keys($mapping), $mapping, $secret);
 
   // Check that the job_id exists if it is an integer.
@@ -115,7 +110,7 @@ function mirtarget_reveal_secret($secret) {
     $exists = db_query('SELECT job_id FROM {tripal_jobs} WHERE job_id=:id', array(':id' => $job_id))->fetchField();
     if (!$exists) {
       tripal_report_error(
-        'pwy_tool',
+        'tripal_srna',
         TRIPAL_ERROR,
         'Unable to decode the job_id from :id.',
         array(':id' => $secret)
@@ -133,7 +128,7 @@ function mirtarget_reveal_secret($secret) {
       $exists = db_query('SELECT job_id FROM {tripal_jobs} WHERE job_id=:id', array(':id' => $job_id))->fetchField();
       if (!$exists) {
         tripal_report_error(
-          'pwy_tool',
+          'tripal_srna',
           TRIPAL_ERROR,
           'Unable to decode the job_id from :id.',
           array(':id' => $secret)
@@ -145,7 +140,7 @@ function mirtarget_reveal_secret($secret) {
     }
     else {
       tripal_report_error(
-        'pwy_tool',
+        'tripal_srna',
         TRIPAL_ERROR,
         'Unable to decode the job_id from :id.',
         array(':id' => $secret)
@@ -159,7 +154,7 @@ function mirtarget_reveal_secret($secret) {
 /**
  * A single location for keeping track of the mapping used in our secrets.
  */
-function mirtarget_secret_mapping($reveal = FALSE) {
+function tripal_srna_secret_mapping($reveal = FALSE) {
   $mapping = array(
     1 => 'P',
     2 => 'sA',
@@ -200,15 +195,15 @@ function mirtarget_secret_mapping($reveal = FALSE) {
  * @param $num_iterations
  *    An integer representing the number of times you wish to test your mapping.
  */
-function mirtarget_test_secret_mapping($num_iterations = 10000) {
+function tripal_srna_test_secret_mapping($num_iterations = 10000) {
 
   $all_work = TRUE;
 
   for($i = 0; $i <= $num_iterations; $i++) {
     $job_id = mt_rand(0,100000);
 
-    $secret = mirtarget_make_secret($job_id);
-    $recovered_job_id = mirtarget_reveal_secret($secret);
+    $secret = tripal_srna_make_secret($job_id);
+    $recovered_job_id = tripal_srna_reveal_secret($secret);
 
     if ($job_id != $recovered_job_id) {
       drupal_set_message("Unable to recover job_id: $job_id; Secret: $secret.",'error');

@@ -2,9 +2,65 @@
 
 /**
  * @file
- * Contains more generally applicable functions as well as some meant to help developers
- * Plug-in to the BLAST UI functionality
+ * API for tripal_srna
  */
+
+/**
+ * @param array header
+ * 
+ * @param array of 1st row
+ *
+ * @return HTML of table
+ */
+function tripal_srna_table_example ($header, $first_row) {
+
+  $html = '<table><tr>';
+  foreach ($header as $h) {
+    $html.= '<th>' . $h . '</th>';
+  }
+
+  $html.= '</tr><tr>';
+  foreach ($first_row as $r) {
+    $html.= '<td>' . $r . '</td>';
+  }
+
+  $html.= '</tr></table>';
+  return $html;
+}
+
+/**
+ * retrieve organism from database 
+ * 
+ * @return array of organism, key: organism_id value: common_name
+ */
+function tripal_srna_get_sample_options () {
+  $org_opts = tripal_srna_get_organism_options(); 
+  $sample_opts = array();
+  $result = db_query("SELECT * FROM {srna_sample}", array());
+  foreach ($result as $sample) {
+    $org_name = $org_opts[$sample->organism_id];
+    $sample_opts[$sample->sample_id] = $org_name . ', ' . $sample->sample_id;
+  } 
+  return $sample_opts;
+}
+
+/**
+ * retrieve organism from database 
+ * 
+ * @return array of organism, key: organism_id value: common_name
+ */
+function tripal_srna_get_organism_options () {
+  $org_opts = array();
+  $org_select = chado_select_record(
+     'organism',
+     array('organism_id', 'common_name'),
+     array()
+  );
+  foreach ($org_select as $org) {
+     $org_opts[$org->organism_id] = $org->common_name;
+  }
+  return $org_opts;
+}
 
 /**
  * Get a specific BlastDB.
@@ -14,28 +70,6 @@
  *
  * @return
  *   A fully-loaded BLAST DB Node
- */
-/**
-function get_blast_database($identifiers) {
-  $node = FALSE;
-
-  if (isset($identifiers['nid'])) {
-    $node = node_load($identifiers['nid']);
-  }
-  elseif (isset($identifiers['name'])) {
-
-    $nid = db_query('SELECT nid FROM {blastdb} WHERE name=:name', array(':name' => $identifiers['name']))->fetchField();
-    $node = node_load($nid);
-
-  } elseif (isset($identifiers['path'])) {
-
-    $nid = db_query('SELECT nid FROM {blastdb} WHERE path LIKE :path', array(':path' => db_like($identifiers['path']) . '%'))->fetchField();
-    $node = node_load($nid);
-
-  }
-
-  return $node;
-}
  */
 
 /**
