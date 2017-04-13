@@ -24,12 +24,37 @@ print '<br><h1 class="page-header">Digital expression</h1>';
 $head_data = array('Organism', 'Cultivar', 'Tissue', 'Total reads', '# of sRNA reads');
 $rows_data = array();
 foreach ($expression as $e) {
+ 
+  $experiment = chado_generate_var('experiment', array('experiment_id' => $e->experiment_id));
+  $experiment = chado_expand_var($experiment, 'table', 'experimentprop', array('return_array' => 1));
+  $experiment->properties = new stdClass;
+
+  // append prop to experiment
+  foreach ($experiment->experimentprop as $prop) {
+    if (!is_null($prop->value)) {
+      $cvterm_name = $prop->type_id->name;
+      $experiment->properties->$cvterm_name = $prop->value;
+    }
+  }
+
+  //append biosample prop to experiment
+  $biosample = $experiment->biomaterial_id;
+  $biosample = chado_expand_var($biosample, 'table', 'biomaterialprop', array('return_array' => 1));
+
+  foreach ($biosample->biomaterialprop as $prop) {
+    if (!is_null($prop->value)) {
+      $cvterm_name = $prop->type_id->name;
+      $experiment->properties->$cvterm_name = $prop->value;
+    }
+  }
+  $experiment->properties->number_count = $e->number_count;
+
   $row = array(
     $organism,
-    $e->cultivar,
-    $e->tissue,
-    $e->total_count,
-    $e->number_count
+    property_exists($experiment->properties, 'cultivar') ? $experiment->properties->cultivar : '',
+    property_exists($experiment->properties, 'tissue') ? $experiment->properties->tissue : '',
+    property_exists($experiment->properties, 'total_count') ? $experiment->properties->total_count : '',
+    property_exists($experiment->properties, 'number_count') ? $experiment->properties->number_count : '',
   );
   $rows_data[] = $row;
 }

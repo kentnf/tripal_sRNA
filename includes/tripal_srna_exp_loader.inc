@@ -94,16 +94,20 @@ function tripal_srna_exp_loader_job($srna_exp) {
     $num_update = 0;
     $sample = array();
 
+    // check if the sample name is already exist in chado_experiment table
+    // create array to story the sample name and experiment id
+    $sample_exp = array();
     $fh = fopen($srna_exp, 'r');
     if ($sample = fgetcsv($fh, 0, "\t")) {
       array_shift($sample);
       foreach ($sample as $sid) {
-        $rr = db_query("SELECT sample_id FROM {srna_sample} WHERE sample_id = :sid", array(':sid' => $sid))->fetchField();
+        $rr = db_query("SELECT experiment_id FROM chado.experiment WHERE name = :sid", array(':sid' => $sid))->fetchField();
         if (!$rr) {
           watchdog('tripal_srna_exp_loader', 
-            ':sample does not exist, please input sample info.', array(':sample' => $sid), WATCHDOG_ERROR);
+            'Sample name :sample does not exist in experiment table', array(':sample' => $sid), WATCHDOG_ERROR);
           exit;
         }
+        $sample_exp[$sid] = $rr;
       }
     }
 
@@ -111,8 +115,9 @@ function tripal_srna_exp_loader_job($srna_exp) {
       $srna = array_shift($line);
       $exp = array_combine($sample, $line);
       foreach ($exp as $sample_id => $value) {
-        $sql = "SELECT express_id FROM {srna_feature_expression} WHERE srna_id = :srna AND sample_id = :sample";
-        $rec = db_query($sql, array(':srna' => $srna, ':sample' => $sample_id))->fetchField();
+        $exp_id = $sample_exp[$sample_id];
+        $sql = "SELECT express_id FROM {srna_feature_expression} WHERE srna_id = :srna AND experiment_id = :exp_id";
+        $rec = db_query($sql, array(':srna' => $srna, ':exp_id' => $exp_id))->fetchField();
         if ($rec) {
           $update = db_update('srna_feature_expression')->fields(array(
             'number_count'   => $value,
@@ -122,9 +127,9 @@ function tripal_srna_exp_loader_job($srna_exp) {
         }
         else {
           $insert = db_insert('srna_feature_expression')->fields(array(
-            'srna_id'      => $srna,
-            'sample_id'    => $sample_id,
-            'number_count' => $value,
+            'srna_id'       => $srna,
+            'experiment_id' => $exp_id,
+            'number_count'  => $value,
           ))->execute();
           //drupal_set_message(t('sRNA '.$srna.' expression in sample '.$sample_id.' has been inserted.'), 'status');
           ++$num_insert;

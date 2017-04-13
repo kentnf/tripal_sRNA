@@ -6,6 +6,23 @@
  */
 
 /**
+ * @return submenu of sRNA 
+ */
+function tripal_srna_submenu () {
+ 
+  $menu = array();
+  $menu[] = l('sRNA', 'srna/search');
+  $menu[] = l('miRNA', 'mirna/search');
+  $menu[] = l('target prediction', 'mirtarget');
+  $menu[] = l('highly abundant sRNAs', 'mirna/list');
+  $menu[] = l('sRNA viewer', 'srna/viewer');
+
+  $menu_html = implode(" | ", $menu);
+ 
+  return $menu_html;
+}
+
+/**
  * @param array header
  * 
  * @param array of 1st row

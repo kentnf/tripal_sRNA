@@ -27,10 +27,10 @@ $rows_data = array();
 foreach ($exp as $sample) {
   $row = array(
     $organism,
-    $sample->cultivar,
-    $sample->tissue,
-    $sample->total_count,
-    $sample->number_count
+    property_exists($sample->properties, 'cultivar') ? $sample->properties->cultivar : '',
+    property_exists($sample->properties, 'tissue') ? $sample->properties->tissue : '',
+    property_exists($sample->properties, 'total_count') ? $sample->properties->total_count : '',
+    property_exists($sample->properties, 'number_count') ? $sample->properties->number_count : '',
   );
   $rows_data[] = $row;
 }

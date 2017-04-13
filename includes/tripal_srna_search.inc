@@ -127,12 +127,35 @@ function tripal_srna_search_display($record) {
   $result = chado_select_record('organism', array('common_name'),array('organism_id'=> $srna->organism_id));
   $organism = $result[0]->common_name;
 
-  $sql = "SELECT * FROM {srna_sample} WHERE sample_id = :sample_id";
+  $sql = "SELECT * FROM {chado.experiment} WHERE experiment_id = :experiment_id";
   $sample_exp = array();
   foreach ($exp as $e) {
-    $sample = db_query($sql, array(':sample_id'=>$e->sample_id))->fetchObject();
-    $sample->number_count = $e->number_count;
-    $sample_exp[] = $sample;
+    //$experiment = db_query($sql, array(':experiment_id'=>$e->experiment_id))->fetchObject();
+    $experiment = chado_generate_var('experiment', array('experiment_id' => $e->experiment_id));
+    $experiment = chado_expand_var($experiment, 'table', 'experimentprop', array('return_array' => 1));
+    $experiment->properties = new stdClass;
+
+    // append prop to experiment
+    foreach ($experiment->experimentprop as $prop) {
+      if (!is_null($prop->value)) {
+        $cvterm_name = $prop->type_id->name;
+        $experiment->properties->$cvterm_name = $prop->value;
+      }
+    }
+
+    //append biosample prop to experiment
+    $biosample = $experiment->biomaterial_id;
+    $biosample = chado_expand_var($biosample, 'table', 'biomaterialprop', array('return_array' => 1));
+
+    foreach ($biosample->biomaterialprop as $prop) {
+      if (!is_null($prop->value)) {
+        $cvterm_name = $prop->type_id->name;
+        $experiment->properties->$cvterm_name = $prop->value;
+      }
+    }
+
+    $experiment->properties->number_count = $e->number_count;
+    $sample_exp[] = $experiment;
   }
 
   return theme('srna_display', array('srna' => $srna, 'exp' => $sample_exp, 'organism'=>$organism));

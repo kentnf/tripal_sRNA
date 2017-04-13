@@ -94,15 +94,9 @@ function tripal_srna_schema() {
     ),
     'primary key' => array('express_id'),
     'unique keys' => array(
-      'srna_sample_id' => array('srna_id', 'sample_id'),
+      'srna_experiment_id' => array('srna_id', 'experiment_id'),
     ),
     'foreign keys' => array(
-      'srna_sample' => array(
-        'table' => 'srna_sample',
-        'columns' => array(
-          'sample_id' => 'sample_id',
-        ),
-      ),
       'srna_feature' => array(
         'table' => 'srna_feature',
         'columns' => array(

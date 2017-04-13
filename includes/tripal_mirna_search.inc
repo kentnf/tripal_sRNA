@@ -186,7 +186,7 @@ function tripal_mirna_search_display($uniquename) {
 
   // get miRNA expression
   $sql = "SELECT s.*, e.number_count FROM {srna_feature_expression} e
-    LEFT JOIN {srna_sample} s ON s.sample_id = e.sample_id
+    LEFT JOIN {chado.experiment} s ON s.experiment_id = e.experiment_id
     WHERE e.srna_id = :srna_id";
   $expression = array();
   $exp = db_query($sql, array(':srna_id'=>$mirna->srna_id));

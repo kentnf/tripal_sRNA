@@ -16,6 +16,9 @@ require_once 'includes/tripal_srna_sample_loader.inc';
 require_once 'includes/tripal_srna_seq_loader.inc';
 require_once 'includes/tripal_srna_exp_loader.inc';
 
+// siRNA viewer
+require_once 'includes/tripal_srna_view.inc';
+
 // search page of sRNA
 require_once 'includes/tripal_srna_search.inc';
 
@@ -50,8 +53,9 @@ function tripal_srna_menu() {
   $items['admin/tripal/extension/tripal_srna/srna_sample_load'] = array(
     'title' => 'Load sRNA sample',
     'description' => 'Load sRNA sample information into public database.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('tripal_srna_sample_loader_form'),
+    'page callback' => 'tripal_srna_sample_loader_biosample',
+    //'page callback' => 'drupal_get_form',
+    //'page arguments' => array('tripal_srna_sample_loader_form'),
     'access arguments' => array('administer'),
     'type' => MENU_NORMAL_ITEM,
     'weight' => 1,
@@ -95,6 +99,24 @@ function tripal_srna_menu() {
     'page arguments' => array(2),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
+  );
+
+  // sRNA view
+  $items['srna/view'] = array(
+    'title' => 'siRNAs viewer',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('tripal_srna_view_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  // sRNA view display
+  $items['srna/view/display'] = array(
+    'title' => 'siRNAs viewer',
+    'page callback' => 'tripal_srna_view_display',
+    'page arguments' => array(''),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
   );
 
   // highly abundant sRNAs
@@ -240,6 +262,11 @@ function tripal_srna_theme() {
     'path' => "$path/theme",
   );
 
+  $items['srna_view_display'] = array(
+    'template' => 'srna_view_display',
+    'path' => "$path/theme",
+  );
+
   $items['mirna_display'] = array(
     'template' => 'mirna_display',
     'path' => "$path/theme",
@@ -291,5 +318,13 @@ function tripal_srna_help($path, $arg) {
   if ($path == 'admin/help#tripal_srna') {
     return theme('tripal_srna_help');
   }
+}
+
+/**
+ * retrun html for link to biosample 
+ */
+function tripal_srna_sample_loader_biosample () {
+  $html = l(t('add a new SRA Biosample.'), 'node/add/chado-biosample');
+  return $html;
 }
 
