@@ -12,7 +12,6 @@ require_once 'api/tripal_srna.api.inc';
 require_once 'includes/tripal_srna.admin.inc';
 
 // load sRNA to database public schema
-require_once 'includes/tripal_srna_sample_loader.inc';
 require_once 'includes/tripal_srna_seq_loader.inc';
 require_once 'includes/tripal_srna_exp_loader.inc';
 
@@ -32,7 +31,7 @@ require_once 'includes/tripal_mirna_loader.inc';
 require_once 'includes/tripal_mirna_search.inc';
 
 // miRNA/mRNA Node functionality
-require_once 'includes/mirtarget.node.inc';
+require_once 'includes/tripal_mirna_target.node.inc';
 
 // Functions specific to themeing (ie: preprocess)
 require_once 'theme/tripal_srna.theme.inc';
@@ -54,8 +53,6 @@ function tripal_srna_menu() {
     'title' => 'Load sRNA sample',
     'description' => 'Load sRNA sample information into public database.',
     'page callback' => 'tripal_srna_sample_loader_biosample',
-    //'page callback' => 'drupal_get_form',
-    //'page arguments' => array('tripal_srna_sample_loader_form'),
     'access arguments' => array('administer'),
     'type' => MENU_NORMAL_ITEM,
     'weight' => 1,
@@ -161,7 +158,7 @@ function tripal_srna_menu() {
     'title' => 'Dispaly miRNA feature',
     'page callback' => 'tripal_mirna_search_display',
     'page arguments' => array(2),
-    'access arguments' => array('access countent'),
+    'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );  
 
@@ -169,7 +166,7 @@ function tripal_srna_menu() {
   $items['mirna/list'] = array(
     'title' => 'list of putative miRNA',
     'page callback' => 'tripal_mirna_search_list',
-    'access arguments' => array('access countent'),
+    'access arguments' => array('access content'),
     'type' => MENU_NORMAL_ITEM,
   );
 
@@ -178,7 +175,7 @@ function tripal_srna_menu() {
     'title' => 'target of putative miRNA',
     'page callback' => 'tripal_mirna_search_target',
     'page arguments' => array(2),
-    'access arguments' => array('access countent'),
+    'access arguments' => array('access content'),
     'type' => MENU_NORMAL_ITEM,
   );
 
@@ -187,7 +184,7 @@ function tripal_srna_menu() {
     'title' => 'miRNA*',
     'page callback' => 'tripal_mirna_search_star',
     'page arguments' => array(2, 3),
-    'access arguments' => array('access countent'),
+    'access arguments' => array('access content'),
     'type' => MENU_NORMAL_ITEM,
   );
 
@@ -196,7 +193,7 @@ function tripal_srna_menu() {
     'title' => 'Hairpin structure of pre-miRNA',
     'page callback' => 'tripal_mirna_search_structure',
     'page arguments' => array(2),
-    'access arguments' => array('access countent'),
+    'access arguments' => array('access content'),
     'type' => MENU_NORMAL_ITEM,
   );
 
@@ -210,17 +207,18 @@ function tripal_srna_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('mirtarget_pred_form'),
     'access arguments' => array('access content'),
-    'file' => 'includes/mirtarget_pred_form.inc',
+    'file' => 'includes/tripal_mirna_target_form.inc',
   );
 
   // mirtarget dataset Node 
   // -- the node just fasta sequence used for target prediction
   // -- accpet both miRNA and mRNA sequence with fasta format
+  $path = drupal_get_path('module', 'tripal_srna');
   $items['node__mirtarget'] = array(
     'template' => 'node--mirtarget',
     'render element' => 'node',
     'base hook' => 'node',
-    'path' => 'thememir',
+    'path' => $path . '/theme',
   );
 
   // miRNA target prediction results page

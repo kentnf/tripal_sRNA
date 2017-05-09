@@ -249,7 +249,7 @@ function tripal_srna_view_form_submit($form, $form_state) {
     $chr = $form_state['values']['SELECT_CHR'];
     $start = $form_state['values']['START'];
     $end = $form_state['values']['END'];
-    $_SESSION['tripal_sirnaview_search']['location'] = "$chr:$start-$end";
+    $_SESSION['tripal_sirnaview_search']['location'] = "$chr:$start..$end";
     $_SESSION['tripal_sirnaview_search']['METHOD']   = 'location';
     drupal_goto("srna/view/display");
   }
@@ -304,7 +304,7 @@ function ajax_srnaview_location_callback($form, $form_state) {
 
   $chr_opts = $form['LOCATION']['SELECT_CHR']['#options'];
   foreach ($results as $r) {
-    $chr_opts[$r->feature_id] = $r->uniquename;
+    $chr_opts[$r->uniquename] = $r->uniquename;
   }
 
   $form['LOCATION']['SELECT_CHR']['#options'] = $chr_opts;
