@@ -9,7 +9,7 @@
 /**
  * Implements hook_node_info().
  */
-function mirtarget_node_info() {
+function tripal_srna_node_info() {
   return array(
     'mipredseq' => array(
       'name' => t('miRNA/mRNA Sequence File'),
@@ -22,7 +22,7 @@ function mirtarget_node_info() {
 /**
  * Implements hook_node_access().
  */
-function mirtarget_node_access($node, $op, $account) {
+function tripal_srna_node_access($node, $op, $account) {
   $node_type = $node;
   if (is_object($node)) {
     $node_type = $node->type;
@@ -147,7 +147,7 @@ function mipredseq_insert($node) {
  * Implements hook_node_insert().
  * This function acts on ALL NODES
  */
-function mirtarget_node_insert($node) {
+function tripal_srna_node_insert($node) {
   if ($node->type == 'mipredseq') {
     $node->title = $node->db_name;
   }
@@ -173,7 +173,7 @@ function mipredseq_update($node) {
  * This function acts on ALL NODES
  * for mirtarget_node
  */
-function mirtarget_node_update($node) {
+function tripal_srna_node_update($node) {
   if ($node->type == 'mipredseq')  {
     $node->title = $node->db_name;
   }
