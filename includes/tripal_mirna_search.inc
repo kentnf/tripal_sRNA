@@ -12,9 +12,18 @@ function tripal_mirna_search_form($form, $form_state) {
   // drupal_set_title(t('New title for the node form'));
 
   $org_opts = tripal_srna_get_organism_options();
-  $form['organism_id'] = array(
+
+  $form['reference'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Select Reference Genome'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#description' => 'the refernece genome is only used in analyzing small RNAs, not the speicies or cultivar of small RNA sample',
+  );
+
+  $form['reference']['organism_id'] = array(
     '#type' => 'select',
-    '#title' => 'Select Genome',
+    '#title' => '',
     '#options' => $org_opts,
     '#required' => TRUE,
   );
@@ -25,12 +34,20 @@ function tripal_mirna_search_form($form, $form_state) {
     '#submit' => array('tripal_mirna_search_form_submit'),
   );
 
-  $form['mirna_id'] = array(
+  $form['id'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('<b>OR</b><br>Input the miRNA ID:'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#description' => '(current range: P_M00001 - P_M00838)',
+    '#prefix' => '<br><br>',
+  );  
+
+  $form['id']['mirna_id'] = array(
     '#type' => 'textfield',
-    '#title' => t('<br> OR <br><br>Input the miRNA ID:'),
+    '#title' => t(''),
     '#maxlength' => 50,
     '#default_value' => t('P_M00001'),
-    '#suffix' => t('<div>(current range: P_M00001 - P_M00838)</div>'),
   );
 
   $form['submit1'] = array(
@@ -39,9 +56,17 @@ function tripal_mirna_search_form($form, $form_state) {
     '#submit' => array('tripal_mirna_search_form_submit'),
   );
 
-  $form['mirna_name'] = array(
+  $form['name'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('<b>OR</b><br>Input a miRNA name:'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#prefix' => '<br><br>',
+  );
+
+  $form['name']['mirna_name'] = array(
     '#type' => 'textfield',
-    '#title' => t('<br> OR <br><br>Input a miRNA name:'),
+    '#title' => t(''),
     '#maxlength' => 50,
     '#default_value' => t('miR172')
   );
@@ -181,8 +206,8 @@ function tripal_mirna_search_display($uniquename) {
     WHERE mirna_id = :mirna_id";
   $mirna = db_query($sql, array(':mirna_id'=>$uniquename))->fetchObject();
 
-  $result = chado_select_record('organism', array('common_name'),array('organism_id'=> $mirna->organism_id));
-  $organism = $result[0]->common_name;
+  $result = chado_select_record('organism', array('organism_id','common_name'),array('organism_id'=> $mirna->organism_id));
+  $organism = $result[0];
 
   // get miRNA expression
   $sql = "SELECT s.*, e.number_count FROM {srna_feature_expression} e
@@ -273,6 +298,9 @@ function tripal_mirna_search_target($mirna_id) {
   drupal_add_css($path . '/theme/css/report.css');
 
   $sql = "SELECT * FROM {mirna_target} WHERE mirna_id = :mirna_id";
+  //$sql = "SELECT T.*, F.* FROM {mirna_target} T
+  //  LEFT JOIN chado.feature F ON F.uniquename = T.target_id
+  //  WHERE mirna_id = :mirna_id";
   $targets = array();
   $targets_query = db_query($sql, array(':mirna_id' => $mirna_id));
 

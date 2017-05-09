@@ -29,7 +29,7 @@ function tripal_srna_seq_loader_form($form, &$form_state) {
   $form['srna_fasta'] = array(
     '#type' => 'textfield',
     '#title' => t('Full path of sRNA fasta'),
-    '#maxlength' => 50,
+    '#maxlength' => 255,
     '#required' => TRUE,
     '#description' => t('example: /var/www/html/icugi3rd/sites/default/files/sRNA.fasta'),
   );

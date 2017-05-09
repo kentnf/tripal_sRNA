@@ -20,7 +20,7 @@ function tripal_srna_exp_loader_form($form, &$form_state) {
   $form['srna_exp'] = array(
     '#type' => 'textfield',
     '#title' => t('Full path of sRNA expression file'),
-    '#maxlength' => 80,
+    '#maxlength' => 255,
     '#required' => TRUE,
     '#description' => t('example: /var/www/html/icugi3rd/sites/default/files/sRNA_exp.txt'),
   );

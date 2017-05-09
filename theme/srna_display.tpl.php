@@ -4,7 +4,12 @@
  */
 
 // display title
-drupal_set_title(t( $organism . ' small RNA ' . $srna->srna_id));
+drupal_set_title(t( $organism->common_name . ' small RNA ' . $srna->srna_id));
+
+print '<div class="row"> <div class="col-md-8 col-md-offset-2">';
+
+//$menu = tripal_srna_submenu();
+//drupal_set_breadcrumb($menu);
 
 // display sRNA
 $header_data = array('Sequence', 'Length', 'Annotation');
@@ -26,7 +31,7 @@ $header_data = array('Organism', 'Cultivar', 'Tissue', 'Total reads', '# of sRNA
 $rows_data = array();
 foreach ($exp as $sample) {
   $row = array(
-    $organism,
+    l($organism->common_name, 'organism/' . $organism->organism_id),
     property_exists($sample->properties, 'cultivar') ? $sample->properties->cultivar : '',
     property_exists($sample->properties, 'tissue') ? $sample->properties->tissue : '',
     property_exists($sample->properties, 'total_count') ? $sample->properties->total_count : '',
@@ -44,3 +49,6 @@ $variables = array(
   'attributes' => array('class' => 'table vertical-align'),
 );
 print theme('table', $variables);
+
+print '</div></div>';
+

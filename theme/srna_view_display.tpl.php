@@ -18,6 +18,8 @@ if ($_SESSION['tripal_sirnaview_search']['METHOD']) {
   $jbrowse_frame = "<iframe style=\"border: 1px solid rgb(80, 80, 80);\" src=\"/JBrowse/?data=icugi_data/json/$jb_data&loc=$jb_location&tracks=$tracks&tracklist=0&nav=1&overview=0\" height=\"650\" width=\"850\" name=\"jbrowse_iframe\">
   <p>Your browser does not support iframes.</p> </iframe>";
 
+  print '<div class="row"> <div class="col-md-8 col-md-offset-2">';
   print $jbrowse_frame;
+  print '</div></div>';
 }
 

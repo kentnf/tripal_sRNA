@@ -151,7 +151,7 @@ function mirtarget_pred_form_validate($form, &$form_state) {
 
   // this is just a plan for validate fasta
   if (!empty($form_state['values']['INPUT_SEQ'])) {
-    if (validate_fasta_sequence($form_state['values']['INPUT_SEQ'])){
+    if (tripal_srna_validate_fasta_sequence($form_state['values']['INPUT_SEQ'])){
       form_set_error('INPUT_SEQ', t('You need to provide a valid FASTA sequence '
       . 'for the query. It should contain a FASTA header/definition line '
       . 'followed by %molecule-type. For more information see the '

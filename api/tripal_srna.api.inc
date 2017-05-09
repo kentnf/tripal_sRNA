@@ -6,19 +6,45 @@
  */
 
 /**
+ * Implements hook_block_info
+ * @return blocks
+ */
+function tripal_sra_block_info () {
+  $blocks = array();
+  $blocks['srna_menu'] = array(
+    'info' => t('sRNA Menu Block'),
+  );
+  
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function tripal_sra_block_view($delta='') {
+  $block = array();
+  switch($delta) {
+    case 'srna_menu' :
+      $block['content'] = tripal_srna_submenu();
+      break;
+  }
+  return $block;
+}
+
+
+/**
  * @return submenu of sRNA 
  */
-function tripal_srna_submenu () {
+function tripal_srna_submenu() {
  
   $menu = array();
+  $menu[] = l('Home', 'srna/home');
   $menu[] = l('sRNA', 'srna/search');
   $menu[] = l('miRNA', 'mirna/search');
-  $menu[] = l('target prediction', 'mirtarget');
-  $menu[] = l('highly abundant sRNAs', 'mirna/list');
-  $menu[] = l('sRNA viewer', 'srna/viewer');
-
-  $menu_html = implode(" | ", $menu);
- 
+  $menu[] = l('Target Prediction', 'mirtarget');
+  $menu[] = l('Highly Abundant sRNAs', 'srna/abundant/search');
+  $menu[] = l('sRNA Viewer', 'srna/view');
+  $menu_html = '<h4 class="text-center text-info">' . implode(" | ", $menu) . '</h4><br>';
   return $menu_html;
 }
 
@@ -50,14 +76,39 @@ function tripal_srna_table_example ($header, $first_row) {
  * 
  * @return array of organism, key: organism_id value: common_name
  */
-function tripal_srna_get_sample_options () {
-  $org_opts = tripal_srna_get_organism_options(); 
+function tripal_srna_get_sample_options ($organism_id) {
+
+  // get cvterm of miRNA-seq
+  $values = array(
+    'name' => 'miRNA-Seq',
+    'is_obsolete' => 0,
+    'cv_id' => array (
+       'name' => 'experiment_strategy',
+     ),
+  );
+  $result = chado_select_record('cvterm', array('cvterm_id', 'name'), $values);
+  if (empty($result)) { 
+    drupal_set_message("tripal_srna: can not find type_od of miRNA-Seq", 'error');
+  }
+  $type_id = $result[0]->cvterm_id;
+
+  // get small RNA experiment
+  $sql = "SELECT E.experiment_id, E.name FROM chado.experiment E
+    LEFT JOIN chado.biomaterial S ON E.biomaterial_id = S.biomaterial_id
+    INNER JOIN chado.experimentprop P ON E.experiment_id = P.experiment_id
+    WHERE P.type_id = :type_id AND S.taxon_id = :organism_id 
+  ";
+  $args = array(':type_id' => $type_id, ':organism_id' => $organism_id);
+  $result = db_query($sql, $args);
+
+  // save result to array
   $sample_opts = array();
-  $result = db_query("SELECT * FROM {srna_sample}", array());
-  foreach ($result as $sample) {
-    $org_name = $org_opts[$sample->organism_id];
-    $sample_opts[$sample->sample_id] = $org_name . ', ' . $sample->sample_id;
+  foreach ($result as $exp) {
+    $name = $exp->name;
+    $sample_opts[$exp->experiment_id] = $name;
+    dpm($exp);
   } 
+
   return $sample_opts;
 }
 
@@ -68,12 +119,11 @@ function tripal_srna_get_sample_options () {
  */
 function tripal_srna_get_organism_options () {
   $org_opts = array();
-  $org_select = chado_select_record(
-     'organism',
-     array('organism_id', 'common_name'),
-     array()
-  );
-  foreach ($org_select as $org) {
+  $sql = "SELECT DISTINCT S.organism_id, O.common_name FROM mirna_feature S 
+    LEFT JOIN chado.organism O ON S.organism_id = O.organism_id
+  ";
+  $result = db_query($sql, array());
+  foreach ($result as $org) {
      $org_opts[$org->organism_id] = $org->common_name;
   }
   return $org_opts;
@@ -204,7 +254,7 @@ function run_mirtarget_tripal_job($program, $gene_list, $pwy_file, $output_file,
  *  Return a boolean. 1 if the sequence does not pass the format valifation stage and 0 otherwise.
  *
  */
-function validate_fasta_sequence($sequence) {
+function tripal_srna_validate_fasta_sequence($sequence) {
 
   //  http://www.cnblogs.com/xudongliang/p/5028704.html
 

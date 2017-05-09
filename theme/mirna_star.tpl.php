@@ -2,6 +2,9 @@
 
 drupal_set_title('miRNA* of ' . $hairpin->hairpin_id . ' (' . $hairpin->mirna_id . ')');
 
+
+print '<div class="row"> <div class="col-md-8 col-md-offset-2">';
+
 $seq_length = 60;
 
 foreach ($stars as $star) {
@@ -39,3 +42,4 @@ foreach ($stars as $star) {
   print $seq_html;
 }
 
+print '</div></div>';

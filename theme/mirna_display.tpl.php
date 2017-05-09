@@ -1,6 +1,8 @@
 <?php
 
-drupal_set_title($organism . " miRNA ". $mirna->mirna_id );
+drupal_set_title($organism->common_name . " miRNA ". $mirna->mirna_id );
+
+print '<div class="row"> <div class="col-md-8 col-md-offset-2">';
 
 // display miRNA
 $target_html = 'NA';
@@ -50,7 +52,7 @@ foreach ($expression as $e) {
   $experiment->properties->number_count = $e->number_count;
 
   $row = array(
-    $organism,
+    l($organism->common_name , $organism->organism_id),
     property_exists($experiment->properties, 'cultivar') ? $experiment->properties->cultivar : '',
     property_exists($experiment->properties, 'tissue') ? $experiment->properties->tissue : '',
     property_exists($experiment->properties, 'total_count') ? $experiment->properties->total_count : '',
@@ -82,7 +84,7 @@ if (count($conserved) > 0) {
   );
 
   $table = theme('table', $variables);
-  print '<div class="row"> <div class="col-md-6 col-md-offset-3">' . $table  . '</div> </div>';
+  print '<div class="row"> <div class="col-md-8 col-md-offset-2">' . $table  . '</div> </div>';
 } else {
   print '<div class="page-header"><font color=#FF0000 size=4>No hits on known miRNAs were found</font></div>';
 }
@@ -136,3 +138,4 @@ if (count($hairpin) > 0) {
   print '<div class="page-header"><font color=#FF0000 size=4>No precusor were found</font></div>';
 }
 
+print '</div></div>';

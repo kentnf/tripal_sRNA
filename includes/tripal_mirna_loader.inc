@@ -59,7 +59,7 @@ function tripal_mirna_loader_form($form, &$form_state) {
   $form['mirna_tab'] = array(
     '#type' => 'textfield',
     '#title' => t('Full path of miRNA table'),
-    '#maxlength' => 80,
+    '#maxlength' => 255,
     '#required' => TRUE,
     '#description' => t('example: /var/www/html/icugi3rd/sites/default/files/miRNA.txt'),
   );
@@ -67,7 +67,7 @@ function tripal_mirna_loader_form($form, &$form_state) {
   $form['pre_mirna_tab'] = array(
     '#type' => 'textfield',
     '#title' => t('Full path of pre-miRNA table'),
-    '#maxlength' => 80,
+    '#maxlength' => 255,
     '#required' => TRUE,
     '#description' => t('example: /var/www/html/icugi3rd/sites/default/files/miRNA_hairpin.txt'),
   );
@@ -75,7 +75,7 @@ function tripal_mirna_loader_form($form, &$form_state) {
   $form['mirna_conserved_tab'] = array(
     '#type' => 'textfield',
     '#title' => t('Full path of miRNA conserved table'),
-    '#maxlength' => 80,
+    '#maxlength' => 255,
     '#required' => TRUE,
     '#description' => t('example: /var/www/html/icugi3rd/sites/default/files/miRNA_conserved.txt'),
   );
@@ -83,14 +83,14 @@ function tripal_mirna_loader_form($form, &$form_state) {
   $form['mirna_target_tab'] = array(
     '#type' => 'textfield',
     '#title' => t('Full path of miRNA target table'),
-    '#maxlength' => 80,
+    '#maxlength' => 255,
     '#description' => t('example: /var/www/html/icugi3rd/sites/default/files/miRNA_target.txt'),
   );
 
   $form['mirna_star_tab'] = array(
     '#type' => 'textfield',
     '#title' => t('Full path of miRNA star table'),
-    '#maxlength' => 80,
+    '#maxlength' => 255,
     '#description' => t('example: /var/www/html/icugi3rd/sites/default/files/miRNA_star.txt'),
   );
 

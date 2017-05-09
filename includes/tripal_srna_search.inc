@@ -11,25 +11,36 @@ function tripal_srna_search_form($form, $form_state) {
 
   // drupal_set_title(t('New title for the node form'));
 
-  // CSS support to the form
-  $form['#attached']['css'] = array(
-    drupal_get_path('module', 'tripal_srna') . '/theme/css/form.css',
+  $org_opts = tripal_srna_get_organism_options();
+  $form['reference'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Select Reference Genome'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#description' => 'the refernece genome is only used in analyzing small RNAs, not the speicies or cultivar of small RNA sample',
   );
 
-  $org_opts = tripal_srna_get_organism_options();
-  $form['organism_id'] = array(
+  $form['reference']['organism_id'] = array(
     '#type' => 'select',
-    '#title' => 'Select Genome',
+    '#title' => '',
     '#options' => $org_opts,
     '#required' => TRUE,
+    '#description' => t('test'),
   );
 
-  $form['srna_id'] = array(
-    '#type' => 'textfield',
+  $form['id'] = array(
+    '#type' => 'fieldset',
     '#title' => t('Input the small RNA ID:'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#description' => '(current range: P_S0000001 - P_S4105095)',
+  );
+
+  $form['id']['srna_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t(''),
     '#maxlength' => 50,
     '#default_value' => t('P_S0000001'),
-    '#suffix' => t('<div>(current range: P_S0000001 - P_S4105095)</div>'),
   );
 
   $form['submit1'] = array(
@@ -38,11 +49,19 @@ function tripal_srna_search_form($form, $form_state) {
     '#submit' => array('tripal_srna_search_form_submit'),
   );
 
-  $form['srna_seq'] = array(
+  $form['seq'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('OR<br> Input the small RNA sequence:'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#prefix' => '<br><br>',
+  );
+
+  $form['seq']['srna_seq'] = array(
     '#type' => 'textfield',
-    '#title' => t('<br> OR <br><br>Input the small RNA sequence:'),
+    '#title' => t(''),
     '#maxlength' => 50,
-    '#default_value' => t('UCCAAAGGGAUCGCAUUGAUC')
+    '#default_value' => t('UCCAAAGGGAUCGCAUUGAUC'),
   );
 
   $form['submit2'] = array(
@@ -124,8 +143,8 @@ function tripal_srna_search_display($record) {
   $sql = "SELECT * FROM {srna_feature_expression} WHERE srna_id = :srna_id";
   $exp = db_query($sql, array(':srna_id'=>$record));
 
-  $result = chado_select_record('organism', array('common_name'),array('organism_id'=> $srna->organism_id));
-  $organism = $result[0]->common_name;
+  $result = chado_select_record('organism', array('organism_id', 'common_name'),array('organism_id'=> $srna->organism_id));
+  $organism = $result[0];
 
   $sql = "SELECT * FROM {chado.experiment} WHERE experiment_id = :experiment_id";
   $sample_exp = array();

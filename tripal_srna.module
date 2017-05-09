@@ -98,7 +98,7 @@ function tripal_srna_menu() {
     'page callback' => 'tripal_srna_search_display',
     'page arguments' => array(2),
     'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
+    'type' => MENU_NORMAL_ITEM,
   );
 
   // sRNA view

@@ -20,7 +20,9 @@ if (count($data) > 0) {
     'rows' => $rows_data,
     'attributes' => array('class' => 'table vertical-align'),
   );
+  print '<div class="row"> <div class="col-md-8 col-md-offset-2">';
   print theme('table', $variables);
+  print '</div></div>';
 }
 else 
 {
