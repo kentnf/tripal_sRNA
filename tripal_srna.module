@@ -32,6 +32,7 @@ require_once 'includes/tripal_mirna_search.inc';
 
 // miRNA/mRNA Node functionality
 require_once 'includes/tripal_mirna_target.node.inc';
+require_once 'includes/tripal_mirna_target_form.inc';
 
 // Functions specific to themeing (ie: preprocess)
 require_once 'theme/tripal_srna.theme.inc';
@@ -40,6 +41,15 @@ require_once 'theme/tripal_srna.theme.inc';
  * Implements hook_menu().
  */
 function tripal_srna_menu() {
+
+  // sRNA home
+  $items['srna/home'] = array(
+    'title' => 'small RNA',
+    'page callback' => 'theme',
+    'page arguments' => array('tripal_srna_home'),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
 
   // ==== tripal srna admin ====
   $items['admin/tripal/extension/tripal_srna'] = array(
@@ -207,7 +217,6 @@ function tripal_srna_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('mirtarget_pred_form'),
     'access arguments' => array('access content'),
-    'file' => 'includes/tripal_mirna_target_form.inc',
   );
 
   // mirtarget dataset Node 
@@ -303,6 +312,12 @@ function tripal_srna_theme() {
   // Module Help
   $items['tripal_srna_help'] = array(
     'template' => 'tripal_srna_help',
+    'path' => "$path/theme",
+  );
+
+  // home page
+  $items['tripal_srna_home'] = array(
+    'template' => 'tripal_srna_home',
     'path' => "$path/theme",
   );
 
