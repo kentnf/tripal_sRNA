@@ -48,7 +48,7 @@ function mirtarget_pred_form($form, $form_state) {
     '#type' => 'select',
     '#title' => t('Input query type:'),
     '#options' => array(
-      'select_type' => 'select query type',
+      '' => '- select query type -',
       'miRNA' => 'microRNA',
       'mRNA'=> 'mRNA',
     ),
@@ -274,7 +274,7 @@ function mirtarget_pred_form_submit($form, &$form_state) {
     );
 
     // Encode the job_id
-    $job_encode_id = mirtarget_make_secret($job_id);
+    $job_encode_id = tripal_srna_make_secret($job_id);
 
     // Redirect to the miRNA target prediction result page
     drupal_goto("mirtarget/report/$job_encode_id");
@@ -297,7 +297,7 @@ function ajax_mitarget_pred_database_callback($form, $form_state) {
   }
 
   $db_options = array(
-    'select_db' => 'select a database'
+    'select_db' => '- select a database -'
   );
 
   // choose mipredseq dataset

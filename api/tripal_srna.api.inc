@@ -106,9 +106,7 @@ function tripal_srna_get_sample_options ($organism_id) {
   foreach ($result as $exp) {
     $name = $exp->name;
     $sample_opts[$exp->experiment_id] = $name;
-    dpm($exp);
   } 
-
   return $sample_opts;
 }
 
@@ -167,10 +165,10 @@ function get_mipred_db_options() {
     // Restrict to nodes the current user has permission to view.
     ->addTag('node_access');
   $entities = $query->execute();
-  // Get all pwy nodes
-  $nodes  = node_load_multiple(array_keys($entities['node']));
-
+  // Get all nodes
   $options = array();
+  if (sizeof($entities) > 0) {
+  $nodes  = node_load_multiple(array_keys($entities['node']));
   foreach ($nodes as $node) {
     if ( isset($node) && isset($node->db_type) && isset($node->db_name) && isset($node->db_path) && isset($node->db_dblink) ) {
       $options[$node->nid] = array(
@@ -182,8 +180,47 @@ function get_mipred_db_options() {
       );
     }
   }
-  asort($options);
+  }
 
+  // get mRNA or unigene from blast_ui module
+  if (module_exists('blast_ui')) {
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', 'blastdb')
+      ->propertyCondition('status', 1)
+      ->addTag('node_access');
+    $entities = $query->execute();
+
+    if (sizeof($entities) > 0) {
+    $nodes = node_load_multiple(array_keys($entities['node'])); 
+
+    foreach ($nodes as $node) {
+      if (isset($node->db_dbtype) && $node->db_dbtype == 'protein') {
+        continue;
+      }
+      if (isset($node->db_name) && preg_match("/(genome|EST)/i", $node->db_name)) {
+        continue; 
+      }
+ 
+      if ( isset($node) && 
+           isset($node->db_dbtype) && $node->db_dbtype == 'nucleotide' &&
+           isset($node->db_name) && 
+           isset($node->db_path)     
+      ) {
+        $dblink = isset($node->linkout->db_id->urlprefix) ? $node->linkout->db_id->urlprefix: '';
+        $options[$node->nid] = array(
+          $node->db_name,
+          $node->db_path,
+          'mRNA',
+          $dblink,
+          '',
+        );
+      }
+    }
+    }
+  }
+
+  asort($options);
   return $options;
 }
 

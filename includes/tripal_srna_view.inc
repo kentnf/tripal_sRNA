@@ -83,7 +83,7 @@ function tripal_srna_view_form($form, $form_state) {
 
   $form['ID']['INPUT_ID'] = array(
     '#type' => 'textfield',
-    '#title' => t('Enter gene ID. Example: orange1.1g015632m '),
+    '#title' => t('Enter gene ID. Example: Cma_001236 '),
     '#maxlength' => 20,
   );
 
